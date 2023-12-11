@@ -12,52 +12,38 @@
 
 #include "get_next_line.h"
 
-char *get_next_line (int fd)
+char *set_line(char *buffer)
 {
-	char	*stash;
-	char	*line;
-	char	*buffer;
+	size_t i;
+	char *str;
 
-	buffer = malloc();
-	return(line);
+	i = 0;
+	while(buffer[i] != '\n' || buffer[i] != '\0')
+		i++;
+	str = ft_substr(buffer, i + 1, ft_strlen(buffer) - i) + 1;
+	if(str[i] == 0)
+	{	
+		free(str);
+		return(NULL);
+	}
+	str = '\0';
+	return(str);
 }
 
-/*#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
+char *line_buffer(int fd, char *buffer, char *c)
+{
+	size_t read_line;
+	char *tmp;
 
-#define BUFFER_SIZE 100
-
-int main() {
-    // Ouvrir un fichier en lecture seule (O_RDONLY)
-    int fileDescriptor = open("enzo.txt", O_RDONLY);
-
-    if (fileDescriptor == -1)
+	read_line = 1;
+	while(read_line > 0)
 	{
-        perror("Erreur lors de l'ouverture du fichier");
-        return (1);
-    }
-
-    char buffer[BUFFER_SIZE];
-    
-    // Utilisation de la fonction read pour lire depuis le fichier
-    ssize_t bytesRead = read(fileDescriptor, buffer, sizeof(buffer) - 1);
-
-    if (bytesRead == -1) 
-	{
-        perror("Erreur lors de la lecture du fichier");
-        close(fileDescriptor); // Fermer le descripteur de fichier en cas d'erreur
-        return 1;
-    }
-
-    // Ajout d'un caractère nul à la fin du tampon pour former une chaîne de caractères valide
-    buffer[bytesRead] = '\0';
-
-    printf("Contenu du fichier :\n%s", buffer);
-
-    // Fermer le descripteur de fichier après utilisation
-    close(fileDescriptor);
-
-    return 0;
-}*/
+		read_line = read(fd, buffer, BUFFER_SIZE);
+		if(read_line == -1)
+		{
+			free(buffer);
+			return(NULL);
+		}
+	}
+	return(buffer);
+}
