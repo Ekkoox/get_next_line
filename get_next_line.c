@@ -12,16 +12,16 @@
 
 #include "get_next_line.h"
 
-char *set_line(char *buffer)
+static char *set_line(char *buffer)
 {
-	size_t i;
+	size_t i; 
 	char *str;
 
 	i = 0;
 	while(buffer[i] != '\n' || buffer[i] != '\0')
 		i++;
 	str = ft_substr(buffer, i + 1, ft_strlen(buffer) - i) + 1;
-	if(str[i] == 0)
+	if(!str)
 	{	
 		free(str);
 		return(NULL);
@@ -30,20 +30,47 @@ char *set_line(char *buffer)
 	return(str);
 }
 
-char *line_buffer(int fd, char *buffer, char *c)
+char *on_verra(char *buffer)
 {
-	size_t read_line;
-	char *tmp;
+	size_t i;
+	char *str;
 
-	read_line = 1;
-	while(read_line > 0)
+	i = 0;
+	while(buffer[i] != '\n' && buffer[i])
 	{
-		read_line = read(fd, buffer, BUFFER_SIZE);
-		if(read_line == -1)
+		str = ft_strdup(buffer);
+		
+	}
+	str = '\0';
+	return(str);
+}
+
+char *get_next_line(int fd)
+{
+	size_t 		i;
+	char 		*str;
+	char		*buffer;
+	char		*tmp;
+	static char *stash;
+
+	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	stash = '\0';
+	while(i != 0 && !ft_strchr(stash, '\n'))
+	{
+		i = read(fd, buffer, BUFFER_SIZE); // sois renvoie 1 ou fin = 0 ou error = -1
+		if(i == -1)
 		{
 			free(buffer);
 			return(NULL);
 		}
+		tmp = stash;
+		stash = ft_strjoin(stash, buffer); // stash = bonjour\nzizi'\n'
+		free(tmp);
 	}
-	return(buffer);
+	str = set_line(stash);
+	str = '\0';
+	return(str);
 }
+
+//bonjour\n
+//zizi\n

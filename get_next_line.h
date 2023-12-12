@@ -13,7 +13,7 @@
 #ifndef GET_NEXT_LINE
 # define GET NEXT_LINE
 # ifndef BUFFER_SIZE
-# define BUFFER_SIZE 42
+# define BUFFER_SIZE 1000000
 # endif
 
 #include <unistd.h>
