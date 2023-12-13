@@ -6,11 +6,12 @@
 /*   By: enschnei <enschnei@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 16:32:09 by enschnei          #+#    #+#             */
-/*   Updated: 2023/11/18 16:32:09 by enschnei         ###   ########.fr       */
+/*   Updated: 2023/12/13 18:00:38 by enschnei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
 
 static char *set_line(char *buffer)
 {
@@ -18,59 +19,127 @@ static char *set_line(char *buffer)
 	char *str;
 
 	i = 0;
-	while(buffer[i] != '\n' || buffer[i] != '\0')
+	while(buffer[i] != '\n' && buffer[i] != '\0')
 		i++;
-	str = ft_substr(buffer, i + 1, ft_strlen(buffer) - i) + 1;
+	if (buffer[i] == '\n')
+		i++;
+	str = malloc(i + 1);
 	if(!str)
-	{	
-		free(str);
-		return(NULL);
+		return (NULL);
+	i = 0;
+	while (buffer[i] && buffer[i] != '\n')
+	{
+		str[i] = buffer[i];
+		i++;
 	}
-	str = '\0';
+	if (buffer[i] == '\n')
+	{
+		str[i] = '\n';
+		i++;
+	}
+	str[i] = '\0';
 	return(str);
 }
 
-char *on_verra(char *buffer)
+char	*ft_clean_stash(char *stash)
 {
-	size_t i;
-	char *str;
+	char	*new;
+	int		i;
+	int		j;
 
 	i = 0;
-	while(buffer[i] != '\n' && buffer[i])
-	{
-		str = ft_strdup(buffer);
-		
+	j = 0;
+	while (stash[i] && stash[i] != '\n')
+		i++;
+	if (!stash[i])
+		return (free(stash), NULL);
+	new = malloc(sizeof(char) * (ft_strlen(stash) - i + 1));
+	if (!new)
+		return (NULL);
+	i++;
+	while (stash[i])
+	{	
+		new[j] = stash[i];
+		j++;
+		i++;
 	}
-	str = '\0';
-	return(str);
+	new[j] = '\0';
+	return (free(stash), new);
 }
 
 char *get_next_line(int fd)
 {
-	size_t 		i;
+	int 		i;
 	char 		*str;
 	char		*buffer;
-	char		*tmp;
 	static char *stash;
 
+	str = NULL;
+	i = 1;
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
-	stash = '\0';
-	while(i != 0 && !ft_strchr(stash, '\n'))
+	if (!buffer)
+		return (NULL);
+	buffer[0] = 0;
+	while(i != 0 && ft_strchr(buffer, '\n') != 1)
 	{
-		i = read(fd, buffer, BUFFER_SIZE); // sois renvoie 1 ou fin = 0 ou error = -1
+		i = read(fd, buffer, BUFFER_SIZE);
 		if(i == -1)
-		{
-			free(buffer);
-			return(NULL);
-		}
-		tmp = stash;
-		stash = ft_strjoin(stash, buffer); // stash = bonjour\nzizi'\n'
-		free(tmp);
+			return(free(buffer), NULL);
+		buffer[i] = 0;
+		stash = ft_strjoin(stash, buffer);
 	}
+	free(buffer);
 	str = set_line(stash);
-	str = '\0';
+	stash = ft_clean_stash(stash);
 	return(str);
 }
 
-//bonjour\n
-//zizi\n
+
+/*int main()
+{
+	char *str;
+	int fd;
+
+	str = NULL;
+	fd = open("/dev/urandom", O_RDONLY);
+	if (fd < 0)
+		return (0);
+	while ((str = get_next_line(fd)))
+	{
+		printf("%s", str);
+		free(str);
+	}
+	// for (int i = 0; i < 10; i++)
+	// {
+	// 	str = get_next_line(fd);
+	// }
+	return (0);
+}*/
+
+#include "get_next_line.h"
+#include <fcntl.h>
+#include <stdio.h>
+
+int    main(void)
+{
+//    int fd = open("41_with_nl", O_RDONLY);
+//    int fd = open("alternate_line_nl_no_nl", O_RDONLY);
+//    int fd = open("king_james.txt", O_RDONLY);
+//    int fd = open("test.txt", O_RDONLY);
+    int fd = open("bible.txt", O_RDONLY);
+    int    i = 1;
+//    FILE *file = fopen("a.out", "r");
+    char    *next_line = NULL;
+    while (i)
+    {
+        next_line = get_next_line(fd);
+        if (!next_line && !next_line[0])
+            return (printf("next_line[%d] = %s\n", i, next_line));
+        printf("next_line[%d] = %s", i, next_line);
+        free(next_line);
+	i++;
+    }
+    return (0);
+}
