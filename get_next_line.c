@@ -2,29 +2,33 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: enschnei <enschnei@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                                                    +:+ +:+        
+	+:+     */
+/*   By: enschnei <enschnei@student.42.fr>          +#+  +:+      
+	+#+        */
+/*                                                +#+#+#+#+#+  
+	+#+           */
 /*   Created: 2023/11/18 16:32:09 by enschnei          #+#    #+#             */
-/*   Updated: 2023/12/13 18:00:38 by enschnei         ###   ########.fr       */
+/*   Updated: 2023/12/14 15:34:34 by enschnei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
-static char *set_line(char *buffer)
+static char	*set_line(char *buffer)
 {
-	size_t i; 
-	char *str;
+	size_t	i;
+	char	*str;
 
 	i = 0;
-	while(buffer[i] != '\n' && buffer[i] != '\0')
+	if (!buffer)
+		return (NULL);
+	while (buffer[i] != '\n' && buffer[i] != '\0')
 		i++;
 	if (buffer[i] == '\n')
 		i++;
-	str = malloc(i + 1);
-	if(!str)
+	str = malloc(sizeof(char) * i + 1);
+	if (!str)
 		return (NULL);
 	i = 0;
 	while (buffer[i] && buffer[i] != '\n')
@@ -33,12 +37,9 @@ static char *set_line(char *buffer)
 		i++;
 	}
 	if (buffer[i] == '\n')
-	{
-		str[i] = '\n';
-		i++;
-	}
+		str[i++] = '\n';
 	str[i] = '\0';
-	return(str);
+	return (str);
 }
 
 char	*ft_clean_stash(char *stash)
@@ -49,6 +50,8 @@ char	*ft_clean_stash(char *stash)
 
 	i = 0;
 	j = 0;
+	if (!stash)
+		return (NULL);
 	while (stash[i] && stash[i] != '\n')
 		i++;
 	if (!stash[i])
@@ -58,21 +61,20 @@ char	*ft_clean_stash(char *stash)
 		return (NULL);
 	i++;
 	while (stash[i])
-	{	
-		new[j] = stash[i];
+	{
+		new[j] = stash[i + j];
 		j++;
-		i++;
 	}
 	new[j] = '\0';
 	return (free(stash), new);
 }
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-	int 		i;
-	char 		*str;
+	int			i;
+	char		*str;
 	char		*buffer;
-	static char *stash;
+	static char	*stash;
 
 	str = NULL;
 	i = 1;
@@ -81,21 +83,26 @@ char *get_next_line(int fd)
 	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
-	buffer[0] = 0;
-	while(i != 0 && ft_strchr(buffer, '\n') != 1)
+	while (i != 0 && ft_strchr(buffer, '\n') != 1)
 	{
 		i = read(fd, buffer, BUFFER_SIZE);
-		if(i == -1)
-			return(free(buffer), NULL);
+		if (i == -1 || i == 0)
+		{
+			str = NULL;
+			free(buffer);
+			free(stash);
+			stash = NULL;
+			buffer = NULL;
+			return (str);
+		}
 		buffer[i] = 0;
 		stash = ft_strjoin(stash, buffer);
 	}
 	free(buffer);
 	str = set_line(stash);
 	stash = ft_clean_stash(stash);
-	return(str);
+	return (str);
 }
-
 
 /*int main()
 {
@@ -118,28 +125,28 @@ char *get_next_line(int fd)
 	return (0);
 }*/
 
-#include "get_next_line.h"
-#include <fcntl.h>
-#include <stdio.h>
+// #include "get_next_line.h"
+// #include <fcntl.h>
+// #include <stdio.h>
 
-int    main(void)
-{
-//    int fd = open("41_with_nl", O_RDONLY);
-//    int fd = open("alternate_line_nl_no_nl", O_RDONLY);
-//    int fd = open("king_james.txt", O_RDONLY);
-//    int fd = open("test.txt", O_RDONLY);
-    int fd = open("bible.txt", O_RDONLY);
-    int    i = 1;
-//    FILE *file = fopen("a.out", "r");
-    char    *next_line = NULL;
-    while (i)
-    {
-        next_line = get_next_line(fd);
-        if (!next_line && !next_line[0])
-            return (printf("next_line[%d] = %s\n", i, next_line));
-        printf("next_line[%d] = %s", i, next_line);
-        free(next_line);
-	i++;
-    }
-    return (0);
-}
+// int	main(void)
+// {
+// 	//    int fd = open("41_with_nl", O_RDONLY);
+// 	//    int fd = open("alternate_line_nl_no_nl", O_RDONLY);
+// 	//    int fd = open("king_james.txt", O_RDONLY);
+// 	//    int fd = open("test.txt", O_RDONLY);
+// 	int fd = open("bible.txt", O_RDONLY);
+// 	int i = 1;
+// 	//    FILE *file = fopen("a.out", "r");
+// 	char *next_line = NULL;
+// 	while (i)
+// 	{
+// 		next_line = get_next_line(fd);
+// 		if (!next_line)
+// 			return (printf("next_line[%d] = %s\n", i, next_line));
+// 		printf("next_line[%d] = %s", i, next_line);
+// 		free(next_line);
+// 		i++;
+// 	}
+// 	return (0);
+// }

@@ -2,9 +2,12 @@
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: enschnei <enschnei@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                                                    +:+ +:+
+	+:+     */
+/*   By: enschnei <enschnei@student.42.fr>          +#+  +:+
+	+#+        */
+/*                                                +#+#+#+#+#+
+	+#+           */
 /*   Created: 2023/11/18 16:30:53 by enschnei          #+#    #+#             */
 /*   Updated: 2023/11/18 16:30:53 by enschnei         ###   ########.fr       */
 /*                                                                            */
@@ -24,6 +27,18 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
+static char	*free_s1(char *s1)
+{
+	char	*str;
+
+	str = s1;
+	str = malloc(sizeof(char) * 1);
+	if (!str)
+		return (NULL);
+	str[0] = '\0';
+	return (str);
+}
+
 char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*str;
@@ -33,42 +48,32 @@ char	*ft_strjoin(char *s1, char *s2)
 	i = 0;
 	y = 0;
 	if (!s1)
-	{
-		s1 = malloc(sizeof(char) * 1);
-		if (!s1)
-			return (NULL);
-		s1[0] = '\0';
-	}
-	if (!s2 || !s1)
-		return (NULL);
+		free_s1(s1);
+	if (!s2)
+		return (free(s1), NULL);
 	str = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2)) + 1);
 	if (!str)
-		return (NULL);
-	while (s1[y])
 	{
-		str[i] = s1[y];
-		i++;
-		y++;
+		if (s1)
+			free(s1);
+		return (NULL);
 	}
+	while (s1[y])
+		str[i++] = s1[y++];
 	y = 0;
 	while (s2[y])
-	{
-		str[i] = s2[y];
-		i++;
-		y++;
-	}
-	free(s1);
+		str[i++] = s2[y++];
 	str[i] = '\0';
 	return (str);
- }
+}
 
 int	ft_strchr(const char *s, char c)
 {
 	int	i;
 
 	i = 0;
-	if(!s)
-		return(0);
+	if (!s)
+		return (0);
 	while (s[i])
 	{
 		if (s[i] == c)
